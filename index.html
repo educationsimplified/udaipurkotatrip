@@ -10,7 +10,8 @@
 html,body{margin:0;height:100%}
 body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-family:'Playfair Display',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
 .stage{width:min(96vw,1000px);perspective:2400px}
-.book{position:relative;width:100%;aspect-ratio:1.4/1;transition:transform .9s ease;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
+.book{position:relative;width:100%;aspect-ratio:1.4/1;transition:transform .9s ease}
+.book::before{content:"";position:absolute;inset:4% 1% -1%;border-radius:10px;box-shadow:0 28px 40px rgba(0,0,0,.5);pointer-events:none}
 .book.start{transform:translateX(-25%)}.book.end{transform:translateX(25%)}
 .leaf{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.45,.05,.25,1)}
 .leaf.flipped{transform:rotateY(-180deg)}
@@ -20,15 +21,31 @@ body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-
 .face.leather{background:linear-gradient(135deg,#5b3722,#3a2013);color:var(--gold);text-align:center;border:3px double var(--gold);outline:10px solid var(--leather);outline-offset:-14px}
 .cover h1{font-size:clamp(20px,4.2vw,44px);margin:.2em 0;letter-spacing:.04em}
 .cover p{font-family:'Caveat';font-size:clamp(14px,2.4vw,26px);margin:0}
+.cover.main{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:1.5%}
+.cover.main .kick{font-size:clamp(6px,1.05vw,11px);letter-spacing:.35em;text-transform:uppercase;opacity:.8}
+.cover.main .rule{display:flex;align-items:center;gap:8px;width:70%;color:var(--gold);font-size:clamp(9px,1.4vw,15px)}
+.cover.main .rule::before,.cover.main .rule::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.cover.main h1{font-size:clamp(18px,3.8vw,40px);margin:0;line-height:1.05;font-style:italic;font-weight:600;text-shadow:0 2px 6px rgba(0,0,0,.4)}
+.cover.main .yr{font-size:clamp(8px,1.4vw,14px);letter-spacing:.5em;opacity:.85}
+.cities{display:grid;grid-template-columns:1fr 1fr;gap:4%;width:100%}
+.city{border:1px solid rgba(217,180,106,.7);border-radius:999px 999px 6px 6px;padding:7% 4% 5%;background:radial-gradient(ellipse at 50% 20%,rgba(217,180,106,.18),transparent 70%);display:flex;flex-direction:column;align-items:center}
+.city svg{width:80%;height:auto;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.city b{font-weight:600;font-size:clamp(9px,1.6vw,17px);letter-spacing:.22em;text-transform:uppercase;margin-top:4%}
+.city i{font-family:'Caveat';font-style:normal;font-size:clamp(9px,1.5vw,16px);opacity:.85;line-height:1}
+.cover.main .with{font-family:'Caveat';font-size:clamp(11px,1.9vw,21px)}
 .orn{font-size:clamp(18px,3vw,34px)}
 
 /* Photos keep their ORIGINAL aspect ratio (no cropping) */
 .row{display:flex;justify-content:center;align-items:flex-start;gap:4%;width:100%}
 .photo{margin:0;flex:none;background:#fff;padding:3% 3% 2%;box-shadow:0 4px 14px rgba(0,0,0,.25);transform:rotate(var(--r,0deg))}
-.photo .im{width:100%;height:auto;display:block;background:#e8dfcc;object-fit:contain;aspect-ratio:auto}
+.photo .im{width:100%;height:auto;display:block;background:#e8dfcc;object-fit:contain}
 .photo figcaption{font-family:'Caveat';font-size:clamp(11px,1.9vw,22px);text-align:center;padding-top:3%;min-height:1.2em;line-height:1.1}
 .photo.vid{width:88%}
-.photo video{width:100%;max-height:60%;background:#000;display:block}
+.photo video{width:100%;max-height:100%;background:#000;display:block;object-fit:contain}
+.vwrap{position:relative}
+.vfs{position:absolute;top:8px;right:8px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:17px;cursor:pointer;opacity:.85;z-index:2}
+.vfs:hover{opacity:1;background:rgba(0,0,0,.8)}
+video:fullscreen{object-fit:contain;background:#000}
 .note{font-family:'Caveat';font-size:clamp(14px,2.4vw,28px);line-height:1.35;text-align:center;background:#fff8c9;padding:8%;box-shadow:0 4px 12px rgba(0,0,0,.2);transform:rotate(-1.5deg);white-space:pre-wrap;width:88%}
 .chap{text-align:center}.chap small{letter-spacing:.3em;text-transform:uppercase;font-size:clamp(8px,1.3vw,13px);opacity:.6}
 .chap h2{font-size:clamp(24px,5vw,54px);margin:.2em 0;font-style:italic}
@@ -104,13 +121,21 @@ function pageHTML(pg){
 }
 function photoHTML(it,wPct,i){
   const rot=[-1.2,1.4,1,-1.5][(it.g+i)%4];
-  return `<figure class="photo" style="--r:${rot}deg;width:${wPct.toFixed(2)}%"><img class="im" data-g="${it.g}" src="${thumb(it.fileId)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
+  return `<figure class="photo" style="--r:${rot}deg;width:${wPct.toFixed(2)}%"><img class="im" data-g="${it.g}" data-src="https://drive.google.com/thumbnail?id=${it.fileId}&sz=w700" decoding="async" style="aspect-ratio:${it.r.toFixed(4)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
 }
 
 function pg(inner,cls=''){return {inner,cls}}
 function buildPages(items){
   const P=[];gallery=[];
-  P.push(pg(`<div class="cover"><div class="orn">❦</div><h1>${TITLE}</h1><p>${SUB}</p><div class="orn">❦</div><p>${WITH}</p></div>`,'leather cover'));
+  const W='<path d="M8 63q4-4 8 0t8 0 8 0 8 0 8 0 8 0 8 0" />';
+  const ICONS={
+    Kota:`<svg viewBox="0 0 80 70"><path d="M40 3v6M20 30Q40 4 60 30ZM24 30v20M34 30v20M46 30v20M56 30v20M17 50h46M14 55h52"/><path d="M36 9h8"/>${W}</svg>`,
+    Ajmer:`<svg viewBox="0 0 80 70"><path d="M28 40C28 20 52 20 52 40M40 22v-8"/><circle cx="40" cy="11" r="2.5"/><path d="M26 40h28v16H26zM36 56V49a4 4 0 0 1 8 0v7M16 56V32M22 56V32M13 32h12M19 32v-6M58 56V32M64 56V32M55 32h12M61 32v-6M10 56h60"/>${W}</svg>`,
+    Udaipur:`<svg viewBox="0 0 80 70"><path d="M12 54h56M18 54V34h44v20M14 34v-6Q20 17 26 28v6M34 34v-8Q40 10 46 26v8M54 34v-6Q60 17 66 28v6M24 54v-7a3 3 0 0 1 6 0v7M37 54v-7a3 3 0 0 1 6 0v7M50 54v-7a3 3 0 0 1 6 0v7"/><path d="M20 22v-5M40 11V5M60 22v-5"/>${W}</svg>`,
+    Delhi:`<svg viewBox="0 0 80 70"><path d="M22 56V24h36v32M19 24h42M19 19h42M32 56V40a8 8 0 0 1 16 0v16M14 56h52M40 19V8l9 3-9 3M26 31h4M50 31h4M26 36h4M50 36h4"/><path d="M8 63q4-4 8 0t8 0M56 63q4-4 8 0t8 0"/></svg>`
+  };
+  const TAGS={Kota:'the Chambal shore',Ajmer:'Ana Sagar & the Dargah',Udaipur:'city of lakes',Delhi:'heart of India'};
+  P.push(pg(`<div class="cover main"><div class="kick">A Travel Album</div><div class="rule">❦</div><h1>${TITLE}</h1><div class="yr">RAJASTHAN · DELHI</div><div class="cities">${PLACES.map(p=>`<div class="city">${ICONS[p]}<b>${p}</b><i>${TAGS[p]}</i></div>`).join('')}</div><div class="with">${WITH}</div></div>`,'leather cover'));
   P.push(pg(`<div class="chap"><small>The Journey</small><h2>2022</h2></div><div class="route">${PLACES.map((p,i)=>`${i+1}. ${p}`).join('<br>↓<br>')}</div><div class="route">with Ambeya, Fufa &amp; Fufu</div>`));
   PLACES.forEach((pl,ci)=>{
     const its=items.filter(i=>i.place===pl).sort((a,b)=>new Date(a.time)-new Date(b.time));
@@ -120,7 +145,7 @@ function buildPages(items){
     const flush=()=>{if(buf.length){layoutPhotos(buf).forEach(p=>P.push(pg(pageHTML(p))));buf=[]}};
     its.forEach(it=>{
       if(it.type==='photo'){it.g=gallery.push(it)-1;buf.push(it)}
-      else{flush();P.push(pg(it.type==='video'?`<figure class="photo vid"><video controls preload="metadata" playsinline src="${esc(vid(it.value))}"></video><figcaption>${esc(it.caption)||'Video'}</figcaption></figure>`:`<div class="note">${esc(it.value)}</div>${it.caption?`<div class="route">${esc(it.caption)}</div>`:''}`))}
+      else{flush();P.push(pg(it.type==='video'?`<figure class="photo vid"><div class="vwrap"><video controls preload="none" playsinline webkit-playsinline src="${esc(vid(it.value))}"></video><button class="vfs" type="button" title="Full screen">⛶</button></div><figcaption>${esc(it.caption)||'Video'}</figcaption></figure>`:`<div class="note">${esc(it.value)}</div>${it.caption?`<div class="route">${esc(it.caption)}</div>`:''}`))}
     });flush();
   });
   if(!items.length)P.push(pg('<div class="chap"><h2>No memories yet</h2></div>'));
@@ -134,20 +159,26 @@ function buildPages(items){
 function measureOne(it,tries=3){
   return new Promise(res=>{
     const im=new Image();
-    const t=setTimeout(()=>{im.onload=im.onerror=null;retry()},12000);
+    const t=setTimeout(()=>{im.onload=im.onerror=null;retry()},5000);
     const retry=()=>{if(tries>1)setTimeout(()=>measureOne(it,tries-1).then(res),600);else res()};
     im.onload=()=>{clearTimeout(t);if(im.naturalWidth&&im.naturalHeight)it.r=im.naturalWidth/im.naturalHeight;res()};
     im.onerror=()=>{clearTimeout(t);retry()};
-    im.src=thumb(it.fileId)+(tries<3?`&_=${tries}`:'');
+    /* tiny thumbnail (same ratio, a few KB) so measuring is fast */
+    im.src=`https://drive.google.com/thumbnail?id=${it.fileId}&sz=w120`+(tries<3?`&_=${tries}`:'');
   });
 }
-/* limited concurrency so Google Drive doesn't reject requests */
+/* Measure quickly, but never keep the person waiting more than ~3s */
+let ITEMS=[];
 function measure(items){
+  ITEMS=items;
   const q=items.filter(i=>i.type==='photo');
   q.forEach(it=>it.r=4/3);
   let idx=0;
   const worker=async()=>{while(idx<q.length){await measureOne(q[idx++])}};
-  return Promise.all(Array.from({length:Math.min(5,q.length)},worker)).then(()=>items);
+  const all=Promise.all(Array.from({length:Math.min(8,q.length)},worker));
+  /* if stragglers finish later and the reader is still on the cover, re-layout silently */
+  all.then(()=>{if(window._rendered&&cur===0&&q.length)render(buildPages(ITEMS))});
+  return Promise.race([all,new Promise(r=>setTimeout(r,2000))]).then(()=>items);
 }
 
 function render(P){
@@ -157,13 +188,22 @@ function render(P){
     const l=document.createElement('div');l.className='leaf';
     const f=P[2*i],k=P[2*i+1];
     l.innerHTML=`<div class="face front ${f.cls}">${f.inner}${f.cls.includes('leather')?'':`<span class="pn">${2*i+1}</span>`}</div><div class="face back ${k.cls}">${k.inner}${k.cls.includes('leather')?'':`<span class="pn">${2*i+2}</span>`}</div>`;
-    l.onclick=e=>{if(e.target.closest('video'))return;if(e.target.matches('img.im')){openLB(+e.target.dataset.g);return}i<cur?go(-1):go(1)};
+    l.onclick=e=>{if(e.target.closest('video')||e.target.closest('.vfs'))return;if(e.target.matches('img.im')){openLB(+e.target.dataset.g);return}i<cur?go(-1):go(1)};
     b.appendChild(l);leaves.push(l);
   }
   update();
 }
+/* Only load images / draw leaves near the current spread -> light on memory & GPU */
+function loadNear(){
+  leaves.forEach((l,i)=>{
+    const d=i-cur, far=d<-3||d>3;
+    l.style.visibility=far?'hidden':'';
+    if(d>=-2&&d<=3){l.querySelectorAll('img[data-src]').forEach(im=>{im.src=im.dataset.src;im.removeAttribute('data-src')})}
+  });
+}
 function update(moving){
   leaves.forEach((l,i)=>{l.classList.toggle('flipped',i<cur);l.style.zIndex=i<cur?i:N-i});
+  loadNear();
   if(moving!=null){leaves[moving].style.zIndex=N+2}
   const b=document.getElementById('book');b.classList.toggle('start',cur===0);b.classList.toggle('end',cur===N);
   document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===N;
@@ -190,7 +230,16 @@ lb.onclick=e=>{if(e.target===lb)closeLB()};
 slide.onclick=()=>openLB(0);
 function toggleFS(){const d=document;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}else{const e=d.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}}
 fs.onclick=lbf.onclick=toggleFS;
+function videoFS(v){
+  const d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);return}
+  if(v.requestFullscreen)v.requestFullscreen();
+  else if(v.webkitRequestFullscreen)v.webkitRequestFullscreen();
+  else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen(); /* iPhone */
+}
+document.addEventListener('click',e=>{const b=e.target.closest('.vfs');if(b){e.stopPropagation();videoFS(b.parentElement.querySelector('video'))}},true);
+document.addEventListener('dblclick',e=>{const v=e.target.closest('video');if(v)videoFS(v)});
 if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled)){fs.style.display=lbf.style.display='none'}
-fetch(API).then(r=>r.json()).then(d=>measure(d.items||[])).then(items=>render(buildPages(items)))
+fetch(API).then(r=>r.json()).then(d=>measure(d.items||[])).then(items=>{render(buildPages(items));window._rendered=true})
 .catch(()=>render(buildPages([]))).finally(()=>{const l=document.getElementById('load');l.style.opacity=0;setTimeout(()=>l.remove(),600)});
 </script></body></html>
