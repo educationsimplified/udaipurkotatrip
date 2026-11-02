@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Our 2022 Trip · Photo Album</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fbf6ea;--ink:#3b2f24;--gold:#d9b46a;--leather:#4a2c1d}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-family:'Playfair Display',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+.stage{width:min(96vw,1000px);perspective:2400px}
+.book{position:relative;width:100%;aspect-ratio:1.4/1;transition:transform .9s ease;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
+.book.start{transform:translateX(-25%)}.book.end{transform:translateX(25%)}
+.leaf{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.45,.05,.25,1)}
+.leaf.flipped{transform:rotateY(-180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--paper);padding:5% 6%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3%}
+.front{border-radius:0 8px 8px 0;background:linear-gradient(90deg,rgba(0,0,0,.18),transparent 6%),var(--paper)}
+.back{transform:rotateY(180deg);border-radius:8px 0 0 8px;background:linear-gradient(270deg,rgba(0,0,0,.18),transparent 6%),var(--paper)}
+.face.leather{background:linear-gradient(135deg,#5b3722,#3a2013);color:var(--gold);text-align:center;border:3px double var(--gold);outline:10px solid var(--leather);outline-offset:-14px}
+.cover h1{font-size:clamp(20px,4.2vw,44px);margin:.2em 0;letter-spacing:.04em}
+.cover p{font-family:'Caveat';font-size:clamp(14px,2.4vw,26px);margin:0}
+.orn{font-size:clamp(18px,3vw,34px)}
+.photo{margin:0;background:#fff;padding:3% 3% 2%;box-shadow:0 4px 14px rgba(0,0,0,.25);width:88%;transform:rotate(var(--r,0deg))}
+.photo .im{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#e8dfcc}
+.photo figcaption{font-family:'Caveat';font-size:clamp(11px,1.9vw,22px);text-align:center;padding-top:3%;min-height:1.2em}
+.photo video{width:100%;aspect-ratio:16/10;background:#000;display:block}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:5% 4%;width:100%;align-items:start}
+.grid .photo{width:100%;padding:4% 4% 2%}
+.grid.g1,.grid.g2{grid-template-columns:1fr;width:80%}
+.grid.g3 .photo:last-child{grid-column:1/-1;width:50%;justify-self:center}
+.note{font-family:'Caveat';font-size:clamp(14px,2.4vw,28px);line-height:1.35;text-align:center;background:#fff8c9;padding:8%;box-shadow:0 4px 12px rgba(0,0,0,.2);transform:rotate(-1.5deg);white-space:pre-wrap;width:88%}
+.chap{text-align:center}.chap small{letter-spacing:.3em;text-transform:uppercase;font-size:clamp(8px,1.3vw,13px);opacity:.6}
+.chap h2{font-size:clamp(24px,5vw,54px);margin:.2em 0;font-style:italic}
+.route{font-family:'Caveat';font-size:clamp(13px,2.2vw,24px);text-align:center;line-height:1.7}
+.pn{position:absolute;bottom:3%;font-size:clamp(8px,1.2vw,12px);opacity:.5}
+.front .pn{right:6%}.back .pn{left:6%}
+.tag{position:absolute;top:3%;font-size:clamp(7px,1.1vw,11px);letter-spacing:.2em;text-transform:uppercase;opacity:.5}
+.front .tag{right:6%}.back .tag{left:6%}
+.nav{margin-top:22px;flex-wrap:wrap;justify-content:center;display:flex;gap:14px;align-items:center;color:#e9d9b8;font-size:14px}
+.nav button{background:#e9d9b8;color:#3b2f24;border:0;border-radius:20px;padding:9px 18px;font:600 14px 'Playfair Display';cursor:pointer}
+.nav button:disabled{opacity:.35;cursor:default}
+.im{cursor:zoom-in}
+#lb{position:fixed;inset:0;background:rgba(10,6,3,.96);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;color:#f0e2c0}
+#lb.on{display:flex}
+#lb img{max-width:94vw;max-height:78vh;object-fit:contain;box-shadow:0 10px 50px #000;border:8px solid #fff;border-bottom-width:8px;background:#222;transition:opacity .25s}
+#lbc{font-family:'Caveat';font-size:26px;margin-top:14px;min-height:1.3em;text-align:center;padding:0 16px}
+#lbn{font-size:13px;opacity:.7;margin-top:4px}
+.lbb{position:absolute;background:rgba(255,255,255,.12);color:#f0e2c0;border:0;border-radius:50%;width:46px;height:46px;font-size:22px;cursor:pointer}
+.lbb:hover{background:rgba(255,255,255,.25)}
+#lbp{left:14px;top:50%}#lbx{right:14px;top:50%}#lbq{right:14px;top:14px}#lbf{right:68px;top:14px;font-size:18px}#lba{right:122px;top:14px;font-size:16px}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#2c1b11;color:var(--gold);font:italic 22px 'Playfair Display';z-index:999;transition:opacity .6s}
+</style></head><body>
+<div id="load">Opening the album…</div>
+<div id="lb"><button class="lbb" id="lbq" title="Close">✕</button><button class="lbb" id="lbf" title="Full screen">⛶</button><button class="lbb" id="lba" title="Autoplay">▶</button><button class="lbb" id="lbp">‹</button><button class="lbb" id="lbx">›</button><img id="lbi" alt=""><div id="lbc"></div><div id="lbn"></div></div>
+<div class="stage"><div class="book start" id="book"></div></div>
+<div class="nav"><button id="prev">◀ Back</button><span id="ct"></span><button id="next">Next ▶</button><button id="slide">🖼 Photo by photo</button><button id="fs">⛶ Full screen</button></div>
+<script>
+const API='https://script.google.com/macros/s/AKfycbxWBHxyWHOm8fFHqgo13QxEEYGSEGmPBvX5al0lSPrD0PWOeLBns0jbRXH9FiYwVO-4/exec';
+const PLACES=['Kota','Ajmer','Udaipur','Delhi'];
+const TITLE='Our 2022 Trip',SUB='Kota → Ajmer → Udaipur → Delhi',WITH='with Ambeya, Fufa & Fufu';
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const thumb=id=>`https://drive.google.com/thumbnail?id=${id}&sz=w1400`;
+const vid=u=>u.replace('github.com','github.com').replace('/blob/','/raw/');
+let cur=0,N=0,leaves=[],gallery=[],gi=0,timer=null;
+
+function pg(inner,cls=''){return {inner,cls}}
+function buildPages(items){
+  const P=[];gallery=[];
+  P.push(pg(`<div class="cover"><div class="orn">❦</div><h1>${TITLE}</h1><p>${SUB}</p><div class="orn">❦</div><p>${WITH}</p></div>`,'leather cover'));
+  P.push(pg(`<div class="chap"><small>The Journey</small><h2>2022</h2></div><div class="route">${PLACES.map((p,i)=>`${i+1}. ${p}`).join('<br>↓<br>')}</div><div class="route">with Ambeya, Fufa &amp; Fufu</div>`));
+  PLACES.forEach((pl,ci)=>{
+    const its=items.filter(i=>i.place===pl).sort((a,b)=>new Date(a.time)-new Date(b.time));
+    if(!its.length)return;
+    P.push(pg(`<div class="chap"><small>Chapter ${ci+1}</small><h2>${pl}</h2><div class="orn">❦</div></div>`));
+    let buf=[];const flush=()=>{if(buf.length){P.push(pg(`<div class="grid g${buf.length}">${buf.map(photoHTML).join('')}</div>`,'',pl));buf=[]}};
+    its.forEach(it=>{
+      if(it.type==='photo'){it.g=gallery.push(it)-1;buf.push(it);if(buf.length===4)flush()}
+      else{flush();P.push(pg(it.type==='video'?`<figure class="photo"><video controls preload="metadata" playsinline src="${esc(vid(it.value))}"></video><figcaption>${esc(it.caption)||'Video'}</figcaption></figure>`:`<div class="note">${esc(it.value)}</div>${it.caption?`<div class="route">${esc(it.caption)}</div>`:''}`,'',pl))}
+    });flush();
+  });
+  if(!items.length)P.push(pg('<div class="chap"><h2>No memories yet</h2></div>'));
+  P.push(pg(`<div class="chap"><div class="orn">❦</div><h2>The End</h2><small>Memories last forever</small></div>`));
+  while((P.length+1)%2)P.push(pg(''));
+  P.push(pg(`<div class="cover"><div class="orn">❦</div><p>${SUB}</p></div>`,'leather'));
+  return P;
+}
+function photoHTML(it,i){return `<figure class="photo" style="--r:${[-1.2,1.4,1,-1.5][i%4]}deg"><img class="im" data-g="${it.g}" loading="lazy" src="${thumb(it.fileId)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`}
+
+function render(P){
+  const b=document.getElementById('book');b.innerHTML='';leaves=[];
+  N=P.length/2;
+  for(let i=0;i<N;i++){
+    const l=document.createElement('div');l.className='leaf';
+    const f=P[2*i],k=P[2*i+1];
+    l.innerHTML=`<div class="face front ${f.cls}">${f.inner}${f.cls.includes('leather')?'':`<span class="pn">${2*i+1}</span>`}</div><div class="face back ${k.cls}">${k.inner}${k.cls.includes('leather')?'':`<span class="pn">${2*i+2}</span>`}</div>`;
+    l.onclick=e=>{if(e.target.closest('video'))return;if(e.target.matches('img.im')){openLB(+e.target.dataset.g);return}i<cur?go(-1):go(1)};
+    b.appendChild(l);leaves.push(l);
+  }
+  update();
+}
+function update(moving){
+  leaves.forEach((l,i)=>{l.classList.toggle('flipped',i<cur);l.style.zIndex=i<cur?i:N-i});
+  if(moving!=null){leaves[moving].style.zIndex=N+2}
+  const b=document.getElementById('book');b.classList.toggle('start',cur===0);b.classList.toggle('end',cur===N);
+  document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===N;
+  document.getElementById('ct').textContent=cur===0?'Cover':cur===N?'Back cover':`Pages ${2*cur}–${2*cur+1}`;
+}
+function go(d){
+  const n=cur+d;if(n<0||n>N)return;
+  const mv=d>0?cur:n;cur=n;update(mv);
+  setTimeout(()=>{if(leaves[mv])leaves[mv].style.zIndex=mv<cur?mv:N-mv},550);
+}
+prev.onclick=()=>go(-1);next.onclick=()=>go(1);
+addEventListener('keydown',e=>{const o=lb.classList.contains('on');if(e.key==='ArrowRight')o?step(1):go(1);if(e.key==='ArrowLeft')o?step(-1):go(-1);if(e.key==='Escape'&&o)closeLB()});
+let sx=null;addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50){const o=lb.classList.contains('on');o?step(dx<0?1:-1):go(dx<0?1:-1)}sx=null});
+
+function showLB(){const it=gallery[gi];if(!it)return;const im=lbi;im.style.opacity=0;im.onload=()=>im.style.opacity=1;im.src=`https://drive.google.com/thumbnail?id=${it.fileId}&sz=w2000`;lbc.textContent=it.caption||'';lbn.textContent=`${it.place} · ${gi+1} / ${gallery.length}`}
+function openLB(i){if(!gallery.length)return;gi=i||0;lb.classList.add('on');showLB()}
+function closeLB(){lb.classList.remove('on');stopAuto()}
+function step(d){if(!gallery.length)return;gi=(gi+d+gallery.length)%gallery.length;showLB()}
+function stopAuto(){clearInterval(timer);timer=null;lba.textContent='▶'}
+lba.onclick=()=>{if(timer)return stopAuto();lba.textContent='⏸';timer=setInterval(()=>step(1),3000)};
+lbp.onclick=()=>{step(-1)};lbx.onclick=()=>{step(1)};lbq.onclick=closeLB;
+lb.onclick=e=>{if(e.target===lb)closeLB()};
+slide.onclick=()=>openLB(0);
+function toggleFS(){const d=document;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}else{const e=d.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}}
+fs.onclick=lbf.onclick=toggleFS;
+if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled)){fs.style.display=lbf.style.display='none'}
+fetch(API).then(r=>r.json()).then(d=>render(buildPages(d.items||[])))
+.catch(()=>render(buildPages([]))).finally(()=>{const l=document.getElementById('load');l.style.opacity=0;setTimeout(()=>l.remove(),600)});
+</script></body></html>
