@@ -11,7 +11,10 @@ html,body{margin:0;height:100%}
 body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-family:'Playfair Display',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
 .stage{width:min(96vw,1000px);perspective:2400px}
 .book{position:relative;width:100%;aspect-ratio:1.4/1;transition:transform .9s ease}
-.book::before{content:"";position:absolute;inset:4% 1% -1%;border-radius:10px;box-shadow:0 28px 40px rgba(0,0,0,.5);pointer-events:none}
+.book::before{content:"";position:absolute;inset:4% 1% -1%;border-radius:10px;box-shadow:0 28px 40px rgba(0,0,0,.5);pointer-events:none;transition:left .9s ease,right .9s ease}
+/* closed book: shadow only under the one visible cover, no empty shape beside it */
+.book.start::before{left:50%;right:0;border-radius:0 10px 10px 0}
+.book.end::before{right:50%;left:1%;border-radius:10px 0 0 10px}
 .book.start{transform:translateX(-25%)}.book.end{transform:translateX(25%)}
 .leaf{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.45,.05,.25,1)}
 .leaf.flipped{transform:rotateY(-180deg)}
@@ -38,7 +41,10 @@ body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-
 /* Photos keep their ORIGINAL aspect ratio (no cropping) */
 .row{display:flex;justify-content:center;align-items:flex-start;gap:4%;width:100%}
 .photo{margin:0;flex:none;background:#fff;padding:3% 3% 2%;box-shadow:0 4px 14px rgba(0,0,0,.25);transform:rotate(var(--r,0deg))}
-.photo .im{width:100%;height:auto;display:block;background:#e8dfcc;object-fit:contain}
+/* Image shows at its OWN natural ratio; CSS just caps its size so it always fits the page */
+.photo .im{width:auto;height:auto;max-width:100%;max-height:var(--mh,60cqh);display:block;margin:0 auto;background:#e8dfcc;min-width:80px;min-height:80px}
+.photo.p1{max-width:92%}.photo.p2{max-width:48%}
+.face{container-type:size}
 .photo figcaption{font-family:'Caveat';font-size:clamp(11px,1.9vw,22px);text-align:center;padding-top:3%;min-height:1.2em;line-height:1.1}
 .photo.vid{width:88%}
 .photo video{width:100%;max-height:100%;background:#000;display:block;object-fit:contain}
@@ -112,16 +118,15 @@ function layoutPhotos(photos){
   return pages;
 }
 function pageHTML(pg){
+  const mh=Math.max(14,84/pg.rows.length-10).toFixed(1);   /* max image height in % of page */
   return pg.rows.map(row=>{
-    const pair=row.length===2;
-    return `<div class="row">${row.map((it,i)=>{
-      const w=pair?sizePair(it.r):sizeSingle(it.r);
-      return photoHTML(it,w/CONTENT_W*100,i)}).join('')}</div>`;
+    const cls=row.length===2?'p2':'p1';
+    return `<div class="row" style="--mh:${mh}cqh">${row.map((it,i)=>photoHTML(it,cls,i)).join('')}</div>`;
   }).join('');
 }
-function photoHTML(it,wPct,i){
+function photoHTML(it,cls,i){
   const rot=[-1.2,1.4,1,-1.5][(it.g+i)%4];
-  return `<figure class="photo" style="--r:${rot}deg;width:${wPct.toFixed(2)}%"><img class="im" data-g="${it.g}" data-src="https://drive.google.com/thumbnail?id=${it.fileId}&sz=w700" decoding="async" style="aspect-ratio:${it.r.toFixed(4)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
+  return `<figure class="photo ${cls}" style="--r:${rot}deg"><img class="im" data-g="${it.g}" data-src="https://drive.google.com/thumbnail?id=${it.fileId}&sz=w700" decoding="async" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
 }
 
 function pg(inner,cls=''){return {inner,cls}}
