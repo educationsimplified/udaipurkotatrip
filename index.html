@@ -25,7 +25,7 @@ body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-
 /* Photos keep their ORIGINAL aspect ratio (no cropping) */
 .row{display:flex;justify-content:center;align-items:flex-start;gap:4%;width:100%}
 .photo{margin:0;flex:none;background:#fff;padding:3% 3% 2%;box-shadow:0 4px 14px rgba(0,0,0,.25);transform:rotate(var(--r,0deg))}
-.photo .im{width:100%;height:auto;display:block;background:#e8dfcc}
+.photo .im{width:100%;height:auto;display:block;background:#e8dfcc;object-fit:contain;aspect-ratio:auto}
 .photo figcaption{font-family:'Caveat';font-size:clamp(11px,1.9vw,22px);text-align:center;padding-top:3%;min-height:1.2em;line-height:1.1}
 .photo.vid{width:88%}
 .photo video{width:100%;max-height:60%;background:#000;display:block}
@@ -104,7 +104,7 @@ function pageHTML(pg){
 }
 function photoHTML(it,wPct,i){
   const rot=[-1.2,1.4,1,-1.5][(it.g+i)%4];
-  return `<figure class="photo" style="--r:${rot}deg;width:${wPct.toFixed(2)}%"><img class="im" data-g="${it.g}" src="${thumb(it.fileId)}" style="aspect-ratio:${it.r.toFixed(4)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
+  return `<figure class="photo" style="--r:${rot}deg;width:${wPct.toFixed(2)}%"><img class="im" data-g="${it.g}" src="${thumb(it.fileId)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
 }
 
 function pg(inner,cls=''){return {inner,cls}}
@@ -131,16 +131,23 @@ function buildPages(items){
 }
 
 /* Read each photo's real width/height before laying out the pages */
-function measure(items){
-  const jobs=items.filter(i=>i.type==='photo').map(it=>new Promise(res=>{
-    it.r=4/3;
+function measureOne(it,tries=3){
+  return new Promise(res=>{
     const im=new Image();
-    const t=setTimeout(res,10000);
-    im.onload=()=>{if(im.naturalWidth&&im.naturalHeight)it.r=im.naturalWidth/im.naturalHeight;clearTimeout(t);res()};
-    im.onerror=()=>{clearTimeout(t);res()};
-    im.src=thumb(it.fileId);
-  }));
-  return Promise.all(jobs).then(()=>items);
+    const t=setTimeout(()=>{im.onload=im.onerror=null;retry()},12000);
+    const retry=()=>{if(tries>1)setTimeout(()=>measureOne(it,tries-1).then(res),600);else res()};
+    im.onload=()=>{clearTimeout(t);if(im.naturalWidth&&im.naturalHeight)it.r=im.naturalWidth/im.naturalHeight;res()};
+    im.onerror=()=>{clearTimeout(t);retry()};
+    im.src=thumb(it.fileId)+(tries<3?`&_=${tries}`:'');
+  });
+}
+/* limited concurrency so Google Drive doesn't reject requests */
+function measure(items){
+  const q=items.filter(i=>i.type==='photo');
+  q.forEach(it=>it.r=4/3);
+  let idx=0;
+  const worker=async()=>{while(idx<q.length){await measureOne(q[idx++])}};
+  return Promise.all(Array.from({length:Math.min(5,q.length)},worker)).then(()=>items);
 }
 
 function render(P){
