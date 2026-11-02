@@ -1,196 +1,92 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Our 2022 Trip · Photo Album</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<title>Album Admin</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#fbf6ea;--ink:#3b2f24;--gold:#d9b46a;--leather:#4a2c1d}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:radial-gradient(ellipse at center,#6b4a32 0%,#2c1b11 100%);font-family:'Playfair Display',serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;user-select:none}
-.stage{width:min(96vw,1000px);perspective:2400px}
-.book{position:relative;width:100%;aspect-ratio:1.4/1;transition:transform .9s ease;filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))}
-.book.start{transform:translateX(-25%)}.book.end{transform:translateX(25%)}
-.leaf{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.45,.05,.25,1)}
-.leaf.flipped{transform:rotateY(-180deg)}
-.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--paper);padding:5% 6%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5%}
-.front{border-radius:0 8px 8px 0;background:linear-gradient(90deg,rgba(0,0,0,.18),transparent 6%),var(--paper)}
-.back{transform:rotateY(180deg);border-radius:8px 0 0 8px;background:linear-gradient(270deg,rgba(0,0,0,.18),transparent 6%),var(--paper)}
-.face.leather{background:linear-gradient(135deg,#5b3722,#3a2013);color:var(--gold);text-align:center;border:3px double var(--gold);outline:10px solid var(--leather);outline-offset:-14px}
-.cover h1{font-size:clamp(20px,4.2vw,44px);margin:.2em 0;letter-spacing:.04em}
-.cover p{font-family:'Caveat';font-size:clamp(14px,2.4vw,26px);margin:0}
-.orn{font-size:clamp(18px,3vw,34px)}
-
-/* Photos keep their ORIGINAL aspect ratio (no cropping) */
-.row{display:flex;justify-content:center;align-items:flex-start;gap:4%;width:100%}
-.photo{margin:0;flex:none;background:#fff;padding:3% 3% 2%;box-shadow:0 4px 14px rgba(0,0,0,.25);transform:rotate(var(--r,0deg))}
-.photo .im{width:100%;height:auto;display:block;background:#e8dfcc;object-fit:contain;aspect-ratio:auto}
-.photo figcaption{font-family:'Caveat';font-size:clamp(11px,1.9vw,22px);text-align:center;padding-top:3%;min-height:1.2em;line-height:1.1}
-.photo.vid{width:88%}
-.photo video{width:100%;max-height:60%;background:#000;display:block}
-.note{font-family:'Caveat';font-size:clamp(14px,2.4vw,28px);line-height:1.35;text-align:center;background:#fff8c9;padding:8%;box-shadow:0 4px 12px rgba(0,0,0,.2);transform:rotate(-1.5deg);white-space:pre-wrap;width:88%}
-.chap{text-align:center}.chap small{letter-spacing:.3em;text-transform:uppercase;font-size:clamp(8px,1.3vw,13px);opacity:.6}
-.chap h2{font-size:clamp(24px,5vw,54px);margin:.2em 0;font-style:italic}
-.route{font-family:'Caveat';font-size:clamp(13px,2.2vw,24px);text-align:center;line-height:1.7}
-.pn{position:absolute;bottom:3%;font-size:clamp(8px,1.2vw,12px);opacity:.5}
-.front .pn{right:6%}.back .pn{left:6%}
-.tag{position:absolute;top:3%;font-size:clamp(7px,1.1vw,11px);letter-spacing:.2em;text-transform:uppercase;opacity:.5}
-.front .tag{right:6%}.back .tag{left:6%}
-.nav{margin-top:22px;flex-wrap:wrap;justify-content:center;display:flex;gap:14px;align-items:center;color:#e9d9b8;font-size:14px}
-.nav button{background:#e9d9b8;color:#3b2f24;border:0;border-radius:20px;padding:9px 18px;font:600 14px 'Playfair Display';cursor:pointer}
-.nav button:disabled{opacity:.35;cursor:default}
-.im{cursor:zoom-in}
-#lb{position:fixed;inset:0;background:rgba(10,6,3,.96);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;color:#f0e2c0}
-#lb.on{display:flex}
-#lb img{max-width:94vw;max-height:78vh;width:auto;height:auto;object-fit:contain;box-shadow:0 10px 50px #000;border:8px solid #fff;background:#222;transition:opacity .25s}
-#lbc{font-family:'Caveat';font-size:26px;margin-top:14px;min-height:1.3em;text-align:center;padding:0 16px}
-#lbn{font-size:13px;opacity:.7;margin-top:4px}
-.lbb{position:absolute;background:rgba(255,255,255,.12);color:#f0e2c0;border:0;border-radius:50%;width:46px;height:46px;font-size:22px;cursor:pointer}
-.lbb:hover{background:rgba(255,255,255,.25)}
-#lbp{left:14px;top:50%}#lbx{right:14px;top:50%}#lbq{right:14px;top:14px}#lbf{right:68px;top:14px;font-size:18px}#lba{right:122px;top:14px;font-size:16px}
-#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#2c1b11;color:var(--gold);font:italic 22px 'Playfair Display';z-index:999;transition:opacity .6s}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:#f4ecdc;color:#3b2f24;min-height:100vh;padding:24px}
+.card{max-width:720px;margin:0 auto 20px;background:#fffdf7;border-radius:14px;padding:24px;box-shadow:0 8px 28px rgba(60,40,20,.15)}
+h1,h2{font-family:'Playfair Display',serif;margin:0 0 14px}
+label{display:block;font-weight:600;font-size:13px;margin:14px 0 6px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d8c9a8;border-radius:8px;font:inherit;background:#fff}
+button{background:#4a2c1d;color:#f3dfae;border:0;border-radius:8px;padding:11px 20px;font:600 14px Inter;cursor:pointer;margin-top:16px}
+button.sm{padding:6px 12px;margin:0;background:#a33;font-size:12px}
+.tabs{display:flex;gap:8px}.tabs button{margin:0 0 14px;background:#e6d8b8;color:#4a2c1d}.tabs button.on{background:#4a2c1d;color:#f3dfae}
+.drop{border:2px dashed #c9b27a;border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:#fbf6ea}
+.prev{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:12px}
+.prev img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px}
+.bar{height:8px;background:#eadfc6;border-radius:6px;margin-top:14px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#4a2c1d;transition:width .3s}
+#msg{margin-top:10px;font-size:14px}.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee3cc;font-size:13px}
+.row span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hide{display:none}
 </style></head><body>
-<div id="load">Opening the album…</div>
-<div id="lb"><button class="lbb" id="lbq" title="Close">✕</button><button class="lbb" id="lbf" title="Full screen">⛶</button><button class="lbb" id="lba" title="Autoplay">▶</button><button class="lbb" id="lbp">‹</button><button class="lbb" id="lbx">›</button><img id="lbi" alt=""><div id="lbc"></div><div id="lbn"></div></div>
-<div class="stage"><div class="book start" id="book"></div></div>
-<div class="nav"><button id="prev">◀ Back</button><span id="ct"></span><button id="next">Next ▶</button><button id="slide">🖼 Photo by photo</button><button id="fs">⛶ Full screen</button></div>
+<div class="card" id="login"><h1>Album Admin</h1>
+<label>Password <small style="font-weight:400">(hint: your phone number)</small></label>
+<input id="pw" type="password" placeholder="Enter password"><button onclick="login()">Enter</button><div id="lm"></div></div>
+
+<div class="hide" id="panel">
+<div class="card"><h1>Add to the Album</h1>
+<div class="tabs"><button class="on" data-t="photo">📷 Photos</button><button data-t="video">🎬 Video</button><button data-t="note">📝 Note</button></div>
+<label>Place</label><select id="place"><option>Kota</option><option>Ajmer</option><option>Udaipur</option><option>Delhi</option></select>
+<div id="t-photo"><label>Photos (select many at once)</label>
+<div class="drop" id="drop">Tap or drop images here<input id="files" type="file" accept="image/*" multiple hidden></div><div class="prev" id="pv"></div></div>
+<div id="t-video" class="hide"><label>GitHub video link (.mp4)</label><input id="vurl" placeholder="https://github.com/user/repo/raw/main/video.mp4"></div>
+<div id="t-note" class="hide"><label>Note</label><textarea id="ntext" rows="5" placeholder="Write a memory…"></textarea></div>
+<label>Caption <small style="font-weight:400">(photos: applied to all selected)</small></label><input id="cap" placeholder="Optional caption">
+<button onclick="submitIt()">Upload</button><div class="bar"><i id="bar"></i></div><div id="msg"></div></div>
+<div class="card"><h2>Manage</h2><div id="list">Loading…</div></div></div>
+
 <script>
 const API='https://script.google.com/macros/s/AKfycbxWBHxyWHOm8fFHqgo13QxEEYGSEGmPBvX5al0lSPrD0PWOeLBns0jbRXH9FiYwVO-4/exec';
-const PLACES=['Kota','Ajmer','Udaipur','Delhi'];
-const TITLE='Our 2022 Trip',SUB='Kota → Ajmer → Udaipur → Delhi',WITH='with Ambeya, Fufa & Fufu';
-const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const thumb=id=>`https://drive.google.com/thumbnail?id=${id}&sz=w1400`;
-const vid=u=>u.replace('github.com','github.com').replace('/blob/','/raw/');
-let cur=0,N=0,leaves=[],gallery=[],gi=0,timer=null;
-
-/* ---- page layout maths (all sizes are fractions of page HEIGHT) ---- */
-const PAGE_W=0.7, CONTENT_W=PAGE_W*0.88;   // usable width of a page
-const BUDGET=0.84;                          // usable height of a page
-const FRAME=0.075, GAP=0.025;               // polaroid frame+caption, gap between rows
-const isPortraitish=r=>r<=1.15;             // portrait or square -> may sit two per row
-
-function sizeSingle(r){const w=Math.min(CONTENT_W*0.92,0.62*r);return w}
-function sizePair(r){return Math.min(CONTENT_W*0.47,0.46*r)}
-function rowHeight(row){
-  const ws=row.length===2?row.map(it=>sizePair(it.r)):[sizeSingle(row[0].r)];
-  return Math.max(...row.map((it,i)=>ws[i]/it.r))+FRAME+GAP;
+let PW=sessionStorage.getItem('pw')||'',tab='photo',picked=[];
+const $=id=>document.getElementById(id);
+const post=o=>fetch(API,{method:'POST',body:JSON.stringify({password:PW,...o})}).then(r=>r.json());
+async function login(){
+  PW=$('pw').value;$('lm').textContent='Checking…';
+  try{const r=await post({action:'check'});if(r.ok){sessionStorage.setItem('pw',PW);open_()}else $('lm').textContent='❌ '+r.error}catch(e){$('lm').textContent='Network error'}
 }
-function layoutPhotos(photos){
-  const pages=[];let page=null;
-  const newPage=()=>{page={rows:[],h:0};pages.push(page)};
-  photos.forEach(p=>{
-    if(!page)newPage();
-    const last=page.rows[page.rows.length-1];
-    if(last&&last.length===1&&isPortraitish(last[0].r)&&isPortraitish(p.r)){
-      const before=rowHeight(last);last.push(p);
-      const delta=rowHeight(last)-before;
-      if(page.h+delta<=BUDGET){page.h+=delta;return}
-      last.pop();
+function open_(){$('login').classList.add('hide');$('panel').classList.remove('hide');load()}
+if(PW)post({action:'check'}).then(r=>r.ok&&open_());
+$('pw').addEventListener('keydown',e=>e.key==='Enter'&&login());
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  tab=b.dataset.t;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['photo','video','note'].forEach(t=>$('t-'+t).classList.toggle('hide',t!==tab));
+});
+$('drop').onclick=()=>$('files').click();
+$('drop').ondragover=e=>e.preventDefault();
+$('drop').ondrop=e=>{e.preventDefault();pick(e.dataTransfer.files)};
+$('files').onchange=e=>pick(e.target.files);
+function pick(fl){picked=[...fl].filter(f=>f.type.startsWith('image/'));
+  $('pv').innerHTML='';picked.forEach(f=>{const i=new Image();i.src=URL.createObjectURL(f);$('pv').appendChild(i)});
+  $('drop').firstChild.textContent=picked.length+' image(s) selected';}
+function resize(file,max=1600){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.85).split(',')[1]);URL.revokeObjectURL(img.src)};img.onerror=()=>rej(new Error('Cannot read '+file.name));img.src=URL.createObjectURL(file)})}
+
+async function submitIt(){
+  const place=$('place').value,caption=$('cap').value.trim(),m=$('msg');
+  try{
+    if(tab==='photo'){
+      if(!picked.length)return m.textContent='Select images first';
+      for(let i=0;i<picked.length;i++){
+        m.textContent=`Uploading ${i+1} of ${picked.length}…`;
+        const data=await resize(picked[i]);
+        const r=await post({action:'upload',place,caption,data,mime:'image/jpeg',name:picked[i].name.replace(/\.\w+$/,'')+'.jpg'});
+        if(!r.ok)throw new Error(r.error);
+        $('bar').style.width=((i+1)/picked.length*100)+'%';
+      }
+      picked=[];$('pv').innerHTML='';$('drop').firstChild.textContent='Tap or drop images here';
+    }else if(tab==='video'){
+      const url=$('vurl').value.trim();if(!url)return m.textContent='Paste a video link';
+      const r=await post({action:'video',place,caption,url});if(!r.ok)throw new Error(r.error);$('vurl').value='';
+    }else{
+      const text=$('ntext').value.trim();if(!text)return m.textContent='Write a note';
+      const r=await post({action:'note',place,caption,text});if(!r.ok)throw new Error(r.error);$('ntext').value='';
     }
-    const row=[p],h=rowHeight(row);
-    if(page.h+h>BUDGET&&page.rows.length){newPage()}
-    page.rows.push(row);page.h+=h;
-  });
-  return pages;
+    m.textContent='✅ Added to the album!';$('cap').value='';load();
+  }catch(e){m.textContent='❌ '+e.message}
 }
-function pageHTML(pg){
-  return pg.rows.map(row=>{
-    const pair=row.length===2;
-    return `<div class="row">${row.map((it,i)=>{
-      const w=pair?sizePair(it.r):sizeSingle(it.r);
-      return photoHTML(it,w/CONTENT_W*100,i)}).join('')}</div>`;
-  }).join('');
+async function load(){
+  const d=await fetch(API).then(r=>r.json());
+  $('list').innerHTML=d.items.length?d.items.map(i=>`<div class="row"><span>${i.place} · ${i.type} · ${(i.caption||i.value||'').toString().slice(0,50)}</span><button class="sm" onclick="del('${i.id}')">Delete</button></div>`).join(''):'Nothing yet.';
 }
-function photoHTML(it,wPct,i){
-  const rot=[-1.2,1.4,1,-1.5][(it.g+i)%4];
-  return `<figure class="photo" style="--r:${rot}deg;width:${wPct.toFixed(2)}%"><img class="im" data-g="${it.g}" src="${thumb(it.fileId)}" alt=""><figcaption>${esc(it.caption)}</figcaption></figure>`;
-}
-
-function pg(inner,cls=''){return {inner,cls}}
-function buildPages(items){
-  const P=[];gallery=[];
-  P.push(pg(`<div class="cover"><div class="orn">❦</div><h1>${TITLE}</h1><p>${SUB}</p><div class="orn">❦</div><p>${WITH}</p></div>`,'leather cover'));
-  P.push(pg(`<div class="chap"><small>The Journey</small><h2>2022</h2></div><div class="route">${PLACES.map((p,i)=>`${i+1}. ${p}`).join('<br>↓<br>')}</div><div class="route">with Ambeya, Fufa &amp; Fufu</div>`));
-  PLACES.forEach((pl,ci)=>{
-    const its=items.filter(i=>i.place===pl).sort((a,b)=>new Date(a.time)-new Date(b.time));
-    if(!its.length)return;
-    P.push(pg(`<div class="chap"><small>Chapter ${ci+1}</small><h2>${pl}</h2><div class="orn">❦</div></div>`));
-    let buf=[];
-    const flush=()=>{if(buf.length){layoutPhotos(buf).forEach(p=>P.push(pg(pageHTML(p))));buf=[]}};
-    its.forEach(it=>{
-      if(it.type==='photo'){it.g=gallery.push(it)-1;buf.push(it)}
-      else{flush();P.push(pg(it.type==='video'?`<figure class="photo vid"><video controls preload="metadata" playsinline src="${esc(vid(it.value))}"></video><figcaption>${esc(it.caption)||'Video'}</figcaption></figure>`:`<div class="note">${esc(it.value)}</div>${it.caption?`<div class="route">${esc(it.caption)}</div>`:''}`))}
-    });flush();
-  });
-  if(!items.length)P.push(pg('<div class="chap"><h2>No memories yet</h2></div>'));
-  P.push(pg(`<div class="chap"><div class="orn">❦</div><h2>The End</h2><small>Memories last forever</small></div>`));
-  while((P.length+1)%2)P.push(pg(''));
-  P.push(pg(`<div class="cover"><div class="orn">❦</div><p>${SUB}</p></div>`,'leather'));
-  return P;
-}
-
-/* Read each photo's real width/height before laying out the pages */
-function measureOne(it,tries=3){
-  return new Promise(res=>{
-    const im=new Image();
-    const t=setTimeout(()=>{im.onload=im.onerror=null;retry()},12000);
-    const retry=()=>{if(tries>1)setTimeout(()=>measureOne(it,tries-1).then(res),600);else res()};
-    im.onload=()=>{clearTimeout(t);if(im.naturalWidth&&im.naturalHeight)it.r=im.naturalWidth/im.naturalHeight;res()};
-    im.onerror=()=>{clearTimeout(t);retry()};
-    im.src=thumb(it.fileId)+(tries<3?`&_=${tries}`:'');
-  });
-}
-/* limited concurrency so Google Drive doesn't reject requests */
-function measure(items){
-  const q=items.filter(i=>i.type==='photo');
-  q.forEach(it=>it.r=4/3);
-  let idx=0;
-  const worker=async()=>{while(idx<q.length){await measureOne(q[idx++])}};
-  return Promise.all(Array.from({length:Math.min(5,q.length)},worker)).then(()=>items);
-}
-
-function render(P){
-  const b=document.getElementById('book');b.innerHTML='';leaves=[];
-  N=P.length/2;
-  for(let i=0;i<N;i++){
-    const l=document.createElement('div');l.className='leaf';
-    const f=P[2*i],k=P[2*i+1];
-    l.innerHTML=`<div class="face front ${f.cls}">${f.inner}${f.cls.includes('leather')?'':`<span class="pn">${2*i+1}</span>`}</div><div class="face back ${k.cls}">${k.inner}${k.cls.includes('leather')?'':`<span class="pn">${2*i+2}</span>`}</div>`;
-    l.onclick=e=>{if(e.target.closest('video'))return;if(e.target.matches('img.im')){openLB(+e.target.dataset.g);return}i<cur?go(-1):go(1)};
-    b.appendChild(l);leaves.push(l);
-  }
-  update();
-}
-function update(moving){
-  leaves.forEach((l,i)=>{l.classList.toggle('flipped',i<cur);l.style.zIndex=i<cur?i:N-i});
-  if(moving!=null){leaves[moving].style.zIndex=N+2}
-  const b=document.getElementById('book');b.classList.toggle('start',cur===0);b.classList.toggle('end',cur===N);
-  document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===N;
-  document.getElementById('ct').textContent=cur===0?'Cover':cur===N?'Back cover':`Pages ${2*cur}–${2*cur+1}`;
-}
-function go(d){
-  const n=cur+d;if(n<0||n>N)return;
-  const mv=d>0?cur:n;cur=n;update(mv);
-  setTimeout(()=>{if(leaves[mv])leaves[mv].style.zIndex=mv<cur?mv:N-mv},550);
-}
-prev.onclick=()=>go(-1);next.onclick=()=>go(1);
-addEventListener('keydown',e=>{const o=lb.classList.contains('on');if(e.key==='ArrowRight')o?step(1):go(1);if(e.key==='ArrowLeft')o?step(-1):go(-1);if(e.key==='Escape'&&o)closeLB()});
-let sx=null;addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
-addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50){const o=lb.classList.contains('on');o?step(dx<0?1:-1):go(dx<0?1:-1)}sx=null});
-
-function showLB(){const it=gallery[gi];if(!it)return;const im=lbi;im.style.opacity=0;im.onload=()=>im.style.opacity=1;im.src=`https://drive.google.com/thumbnail?id=${it.fileId}&sz=w2000`;lbc.textContent=it.caption||'';lbn.textContent=`${it.place} · ${gi+1} / ${gallery.length}`}
-function openLB(i){if(!gallery.length)return;gi=i||0;lb.classList.add('on');showLB()}
-function closeLB(){lb.classList.remove('on');stopAuto()}
-function step(d){if(!gallery.length)return;gi=(gi+d+gallery.length)%gallery.length;showLB()}
-function stopAuto(){clearInterval(timer);timer=null;lba.textContent='▶'}
-lba.onclick=()=>{if(timer)return stopAuto();lba.textContent='⏸';timer=setInterval(()=>step(1),3000)};
-lbp.onclick=()=>{step(-1)};lbx.onclick=()=>{step(1)};lbq.onclick=closeLB;
-lb.onclick=e=>{if(e.target===lb)closeLB()};
-slide.onclick=()=>openLB(0);
-function toggleFS(){const d=document;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}else{const e=d.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}}
-fs.onclick=lbf.onclick=toggleFS;
-if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled)){fs.style.display=lbf.style.display='none'}
-fetch(API).then(r=>r.json()).then(d=>measure(d.items||[])).then(items=>render(buildPages(items)))
-.catch(()=>render(buildPages([]))).finally(()=>{const l=document.getElementById('load');l.style.opacity=0;setTimeout(()=>l.remove(),600)});
+async function del(id){if(!confirm('Delete this item?'))return;const r=await post({action:'delete',id});r.ok?load():alert(r.error)}
 </script></body></html>
