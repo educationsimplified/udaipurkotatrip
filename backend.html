@@ -1,0 +1,80 @@
+notes it is hosted shagun gmail.com
+
+/**
+ * TRIP ALBUM BACKEND  (Google Apps Script, bound to a Google Sheet)
+ * Setup: Sheet > Extensions > Apps Script > paste this > Deploy > New deployment
+ * Type: Web app | Execute as: Me | Who has access: Anyone > copy the /exec URL.
+ */
+const PASSWORD    = '9335723334';       // checked ONLY on the server
+const FOLDER_NAME = 'Trip2022_Album';   // Drive folder (auto-created)
+const SHEET_NAME  = 'Album';            // Sheet tab (auto-created)
+
+function sheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.appendRow(['id', 'time', 'type', 'place', 'caption', 'value', 'fileId']);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+function folder_() {
+  const it = DriveApp.getFoldersByName(FOLDER_NAME);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(FOLDER_NAME);
+}
+function out_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet() {
+  const rows = sheet_().getDataRange().getValues().slice(1);
+  return out_({ ok: true, items: rows.map(r => ({
+    id: r[0], time: r[1], type: r[2], place: r[3], caption: r[4], value: r[5], fileId: r[6]
+  })) });
+}
+
+function doPost(e) {
+  try {
+    const d = JSON.parse(e.postData.contents);
+    if (d.password !== PASSWORD) return out_({ ok: false, error: 'Wrong password' });
+    if (d.action === 'check') return out_({ ok: true });
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      const sh = sheet_();
+      const id = Utilities.getUuid().slice(0, 8);
+
+      if (d.action === 'upload') {
+        const blob = Utilities.newBlob(Utilities.base64Decode(d.data), d.mime || 'image/jpeg', d.name || (id + '.jpg'));
+        const file = folder_().createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        sh.appendRow([id, new Date(), 'photo', d.place, d.caption || '', '', file.getId()]);
+        return out_({ ok: true, id: id });
+      }
+      if (d.action === 'video') {
+        sh.appendRow([id, new Date(), 'video', d.place, d.caption || '', d.url, '']);
+        return out_({ ok: true, id: id });
+      }
+      if (d.action === 'note') {
+        sh.appendRow([id, new Date(), 'note', d.place, d.caption || '', d.text, '']);
+        return out_({ ok: true, id: id });
+      }
+      if (d.action === 'delete') {
+        const vals = sh.getDataRange().getValues();
+        for (let i = vals.length - 1; i >= 1; i--) {
+          if (vals[i][0] === d.id) {
+            if (vals[i][6]) { try { DriveApp.getFileById(vals[i][6]).setTrashed(true); } catch (x) {} }
+            sh.deleteRow(i + 1);
+            return out_({ ok: true });
+          }
+        }
+        return out_({ ok: false, error: 'Not found' });
+      }
+      return out_({ ok: false, error: 'Unknown action' });
+    } finally { lock.releaseLock(); }
+  } catch (err) {
+    return out_({ ok: false, error: String(err) });
+  }
+}
